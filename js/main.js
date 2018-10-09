@@ -16,8 +16,6 @@ var svg = d3
 
 var g = svg.append('g').attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
 
-// Time parser for x-scale
-var parseTime = d3.timeParse('%Y');
 // For tooltip
 var bisectDate = d3.bisector(function(d) {
   return d.year;
@@ -64,12 +62,21 @@ var line = d3
     return y(d.value);
   });
 
-d3.json('data/example.json').then(function(data) {
+var coins = {};
+d3.json('data/coins.json').then(function(data) {
   // Data cleaning
-  data.forEach(function(d) {
-    d.year = parseTime(d.year);
-    d.value = +d.value;
+  const parseTime = d3.timeFormat('%d/%m/%Y');
+  Object.keys(data).forEach(x => {
+    coins[x] = data[x].map(d => ({
+      '24h_vol': +d['24h_vol'],
+      market_cap: +d.market_cap,
+      price_usd: +d.price_usd,
+      date: parseTime(x.date),
+    }))
   });
+  console.log(coins);
+
+  return;
 
   // Set scale domains
   x.domain(
